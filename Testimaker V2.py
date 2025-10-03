@@ -18,7 +18,7 @@ from PIL import Image, ImageOps
 # =========================
 # Configuración básica
 # =========================
-st.set_page_config(page_title="Creador de Testimonios", page_icon="💬", layout="centered")
+st.set_page_config(page_title="TestiMaker", page_icon="💬", layout="centered")
 
 # ---------- THEME (paleta EvaluApp) ----------
 def inject_theme():
@@ -225,7 +225,7 @@ def inject_theme():
 
 inject_theme()
 
-st.title("💬 Creador de Testimonios – Bienestar & Puesta en Forma")
+st.title("📖 Bitácora de Resultados")
 st.caption("Ingresa tu información, sube tus fotos y genera tu testimonio listo para compartir.")
 
 # =========================
