@@ -94,21 +94,16 @@ def inject_theme():
       .stButton>button:focus{ outline: 3px solid var(--rd-accent-2) !important; }
 
       /* ====== SOLO el submit del form: SIEMPRE verde oliva ====== */
-      /* 1) Contenedor del submit transparente */
       [data-testid="stFormSubmitter"],
-      [data-testid="stFormSubmitter"] > div{
-        background: transparent !important;
-      }
-
-      /* 2) Botón (normal) – cubrimos variantes de Streamlit */
+      [data-testid="stFormSubmitter"] > div{ background: transparent !important; }
       [data-testid="stFormSubmitter"] button,
       [data-testid="baseButton-primaryFormSubmit"],
       [data-testid="baseButton-secondaryFormSubmit"],
       button[kind="primaryFormSubmit"],
       button[kind="secondaryFormSubmit"]{
-        background-color:#6B8E23 !important;   /* verde oliva */
-        background-image:none !important;       /* sin gradientes que lo ennegrecen */
-        color:#FFFFFF !important;               /* texto blanco */
+        background-color:#6B8E23 !important;
+        background-image:none !important;
+        color:#FFFFFF !important;
         border:1px solid #6B8E23 !important;
         border-radius:999px !important;
         padding:.80rem 1.2rem !important;
@@ -117,30 +112,25 @@ def inject_theme():
         opacity:1 !important;
         filter:none !important;
       }
-
-      /* 3) Hover */
       [data-testid="stFormSubmitter"] button:hover,
       [data-testid="baseButton-primaryFormSubmit"]:hover,
       [data-testid="baseButton-secondaryFormSubmit"]:hover,
       button[kind="primaryFormSubmit"]:hover,
       button[kind="secondaryFormSubmit"]:hover{
-        background-color:#5E7F1F !important;    /* oliva más oscuro */
+        background-color:#5E7F1F !important;
         color:#FFFFFF !important;
         transform: translateY(-1px);
       }
-
-      /* 4) Disabled (que siga viéndose verde) */
       [data-testid="stFormSubmitter"] button:disabled,
       [data-testid="baseButton-primaryFormSubmit"]:disabled,
       [data-testid="baseButton-secondaryFormSubmit"]:disabled,
       button[kind="primaryFormSubmit"]:disabled,
       button[kind="secondaryFormSubmit"]:disabled{
-        background-color:#6B8E23 !important;    /* mismo verde */
+        background-color:#6B8E23 !important;
         color:#FFFFFF !important;
-        opacity:.65 !important;                 /* leve indicación de disabled */
+        opacity:.65 !important;
         filter:none !important;
       }
-      /* =========================================================== */
 
       /* ====== st.download_button SIEMPRE verde oliva ====== */
       [data-testid="stDownloadButton"] button,
@@ -168,29 +158,23 @@ def inject_theme():
         color:#FFFFFF !important;
         opacity:.65 !important;
       }
-      /* =========================================================== */
 
-      /* ====== NUEVO: File Uploader (dropzone + “Browse files”) ====== */
-      /* Dropzone (cubrimos varios selectores para distintas versiones de Streamlit/BaseWeb) */
+      /* ====== File Uploader (dropzone + “Browse files”) ====== */
       [data-testid="stFileUploader"] [data-baseweb="file-uploader"] > div,
       [data-testid="stFileUploaderDropzone"],
       [data-testid="stFileUploader"] .uploadDropzone,
       [data-testid="stFileUploader"] section div:has(> div[role="button"]) {
-        background-color:#EAF6F3 !important;     /* verde menta suave */
-        border:1px solid #8BBFB5 !important;     /* borde acorde a la paleta */
+        background-color:#EAF6F3 !important;
+        border:1px solid #8BBFB5 !important;
         border-radius:16px !important;
         color: var(--rd-text) !important;
       }
-
-      /* Texto dentro de la dropzone (título y subtítulo) */
       [data-testid="stFileUploader"] [data-baseweb="file-uploader"] *,
       [data-testid="stFileUploaderDropzone"] *{
         color: var(--rd-text) !important;
       }
-
-      /* Botón "Browse files" dentro del uploader */
       [data-testid="stFileUploader"] button{
-        background-color:#6B8E23 !important;   /* verde oliva */
+        background-color:#6B8E23 !important;
         color:#FFFFFF !important;
         border:1px solid #6B8E23 !important;
         border-radius:999px !important;
@@ -200,7 +184,6 @@ def inject_theme():
         background-color:#5E7F1F !important;
         color:#FFFFFF !important;
       }
-      /* ================== FIN File Uploader ================== */
 
       /* Inputs */
       [data-testid="stTextInput"] input,
@@ -234,10 +217,7 @@ def inject_theme():
         color: rgba(31,42,46,.75) !important;
       }
 
-      /* Divisor */
       hr, .stDivider { opacity:.6; border-color: var(--rd-border) !important; }
-
-      /* Cinta Resultado */
       .rd-result h3{ margin-top: .25rem; }
       .rd-pill{ background: var(--rd-pill-bg); color: var(--rd-accent); padding:2px 10px; border-radius:999px; font-size:12px; font-weight:700; }
     </style>
@@ -260,11 +240,7 @@ def _abrir_img(file) -> Image.Image:
     return img
 
 def _juntar_lado_a_lado(img_izq: Image.Image, img_der: Image.Image, alto_objetivo: int = 900, separador_px: int = 0) -> Image.Image:
-    """
-    Une dos imágenes lado a lado ajustando su alto a 'alto_objetivo' y manteniendo proporciones.
-    separador_px: espacio opcional entre imágenes (0 = sin separación).
-    """
-    # Redimensionar manteniendo proporciones por alto
+    """Une dos imágenes lado a lado manteniendo proporciones."""
     def redimensionar(img: Image.Image, alto_target: int) -> Image.Image:
         w, h = img.size
         if h == alto_target:
@@ -277,10 +253,8 @@ def _juntar_lado_a_lado(img_izq: Image.Image, img_der: Image.Image, alto_objetiv
 
     w_total = izq.width + separador_px + der.width
     canvas = Image.new("RGB", (w_total, alto_objetivo), (255, 255, 255))
-    x = 0
-    canvas.paste(izq, (x, 0))
-    x += izq.width + separador_px
-    canvas.paste(der, (x, 0))
+    canvas.paste(izq, (0, 0))
+    canvas.paste(der, (izq.width + separador_px, 0))
     return canvas
 
 def _png_bytes(img: Image.Image) -> bytes:
@@ -296,24 +270,27 @@ def _formatea_num(n) -> str:
         return str(n)
 
 # =========================
-# Formulario (mismo layout)
+# Formulario (ahora 100% vertical, orden 1→11)
 # =========================
 with st.form("form_testimonio"):
     st.markdown("<div class='rd-card'>", unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
-        peso_inicial = st.number_input("1) Peso inicial (kg)", min_value=0.0, step=0.1, format="%.1f")
-        como_estabas = st.text_area("3) ¿Cómo te encontrabas antes de empezar? (energía, digestión, dolores, etc.)", height=100)
-        por_que_cambio = st.text_area("5) ¿Por qué decidiste que era momento de hacer un cambio?", height=80)
-        mejoras_no_peso = st.text_area("7) ¿Qué mejoras no relacionadas con el peso has logrado?", height=100)
-        objetivo_siguiente = st.text_input("9) ¿Cuál es tu siguiente objetivo?")
-        foto_inicial = st.file_uploader("10) Subir **Foto inicial**", type=["jpg", "jpeg", "png"])
-    with col2:
-        peso_actual = st.number_input("2) Peso actual (kg)", min_value=0.0, step=0.1, format="%.1f")
-        como_te_sentias = st.text_area("4) ¿Cómo te sentías respecto a tu situación?", height=100)
-        en_que_ayudo = st.text_area("6) ¿En qué te ayudó el servicio que no podías resolver por tu cuenta?", height=100)
-        como_te_sientes_hoy = st.text_input("8) ¿Cómo te sientes al respecto (hoy)?")
-        foto_actual = st.file_uploader("11) Subir **Foto actual**", type=["jpg", "jpeg", "png"])
+
+    # 1 y 2 (pesos)
+    peso_inicial = st.number_input("1) Peso inicial (kg)", min_value=0.0, step=0.1, format="%.1f")
+    peso_actual = st.number_input("2) Peso actual (kg)", min_value=0.0, step=0.1, format="%.1f")
+
+    # 3 a 9 (texto)
+    como_estabas = st.text_area("3) ¿Cómo te encontrabas antes de empezar? (energía, digestión, dolores, etc.)", height=100)
+    como_te_sentias = st.text_area("4) ¿Cómo te sentías respecto a tu situación?", height=100)
+    por_que_cambio = st.text_area("5) ¿Por qué decidiste que era momento de hacer un cambio?", height=80)
+    en_que_ayudo = st.text_area("6) ¿En qué te ayudó el servicio que no podías resolver por tu cuenta?", height=100)
+    mejoras_no_peso = st.text_area("7) ¿Qué mejoras no relacionadas con el peso has logrado?", height=100)
+    como_te_sientes_hoy = st.text_input("8) ¿Cómo te sientes al respecto (hoy)?")
+    objetivo_siguiente = st.text_input("9) ¿Cuál es tu siguiente objetivo?")
+
+    # 10 y 11 (fotos)
+    foto_inicial = st.file_uploader("10) Subir **Foto inicial**", type=["jpg", "jpeg", "png"])
+    foto_actual = st.file_uploader("11) Subir **Foto actual**", type=["jpg", "jpeg", "png"])
 
     generar = st.form_submit_button("Generar testimonio", use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
