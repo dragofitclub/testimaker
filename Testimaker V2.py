@@ -142,8 +142,7 @@ def inject_theme():
       }
       /* =========================================================== */
 
-      /* ====== NUEVO: st.download_button SIEMPRE verde oliva ====== */
-      /* Cubrimos el testid y el wrapper de botón clásico */
+      /* ====== st.download_button SIEMPRE verde oliva ====== */
       [data-testid="stDownloadButton"] button,
       .stDownloadButton > button{
         background-color:#6B8E23 !important;
@@ -170,6 +169,38 @@ def inject_theme():
         opacity:.65 !important;
       }
       /* =========================================================== */
+
+      /* ====== NUEVO: File Uploader (dropzone + “Browse files”) ====== */
+      /* Dropzone (cubrimos varios selectores para distintas versiones de Streamlit/BaseWeb) */
+      [data-testid="stFileUploader"] [data-baseweb="file-uploader"] > div,
+      [data-testid="stFileUploaderDropzone"],
+      [data-testid="stFileUploader"] .uploadDropzone,
+      [data-testid="stFileUploader"] section div:has(> div[role="button"]) {
+        background-color:#EAF6F3 !important;     /* verde menta suave */
+        border:1px solid #8BBFB5 !important;     /* borde acorde a la paleta */
+        border-radius:16px !important;
+        color: var(--rd-text) !important;
+      }
+
+      /* Texto dentro de la dropzone (título y subtítulo) */
+      [data-testid="stFileUploader"] [data-baseweb="file-uploader"] *,
+      [data-testid="stFileUploaderDropzone"] *{
+        color: var(--rd-text) !important;
+      }
+
+      /* Botón "Browse files" dentro del uploader */
+      [data-testid="stFileUploader"] button{
+        background-color:#6B8E23 !important;   /* verde oliva */
+        color:#FFFFFF !important;
+        border:1px solid #6B8E23 !important;
+        border-radius:999px !important;
+        font-weight:700 !important;
+      }
+      [data-testid="stFileUploader"] button:hover{
+        background-color:#5E7F1F !important;
+        color:#FFFFFF !important;
+      }
+      /* ================== FIN File Uploader ================== */
 
       /* Inputs */
       [data-testid="stTextInput"] input,
