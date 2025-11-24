@@ -60,19 +60,19 @@ def inject_theme():
         padding: 16px 18px;
       }
 
-      .stButton>button{
-        background: var(--rd-accent) !important;
-        color: #fff !important;
-      }
-
-      [data-testid="stFormSubmitter"] button{
-        background-color:#6B8E23 !important;
-        color:#FFFFFF !important;
-      }
-
-      [data-testid="stDownloadButton"] button{
-        background-color:#6B8E23 !important;
-        color:#FFFFFF !important;
+      /* =============================
+         BOTÓN VERDE ORIGINAL STREAMLIT CLOUD (#8CAC3F)
+         =============================*/
+      .stButton>button,
+      [data-testid="stFormSubmitter"] button,
+      [data-testid="stDownloadButton"] button {
+          background-color: #8CAC3F !important;
+          color: #FFFFFF !important;
+          border-radius: 50px !important;
+          padding: 14px 20px !important;
+          font-size: 16px !important;
+          font-weight: 600 !important;
+          border: none !important;
       }
 
       [data-testid="stFileUploaderDropzone"]{
