@@ -31,7 +31,7 @@ def inject_theme():
         --rd-bg-end:#F7F3EE;
         --rd-card:#FFFFFF;
         --rd-border:#EAE6E1;
-        --rd-accent:#3A6B64;
+        --rd-accent:#3A6B64;     /* verde acento */
         --rd-accent-2:#8BBFB5;
         --rd-text:#1F2A2E;
         --rd-pill-bg:#EAF6F3;
@@ -60,19 +60,35 @@ def inject_theme():
         padding: 16px 18px;
       }
 
-      .stButton>button{
-        background: var(--rd-accent) !important;
-        color: #fff !important;
+      /* ===========================================================
+         BOTONES VERDES — FIX DEFINITIVO PARA STREAMLIT CLOUD + SAFARI
+         =========================================================== */
+      .stButton>button {
+        background-color: var(--rd-accent) !important;
+        border: 1px solid var(--rd-accent) !important;
+        color: #FFFFFF !important;
+        border-radius: 999px !important;
+        padding: .75rem 1.1rem !important;
+        font-weight: 700 !important;
+
+        /* FIX QUE EVITA QUE CLOUD LOS PINTE NEGROS */
+        color-scheme: light !important;
+        filter: none !important;
       }
 
       [data-testid="stFormSubmitter"] button{
         background-color:#6B8E23 !important;
         color:#FFFFFF !important;
+        border-radius:999px !important;
       }
 
       [data-testid="stDownloadButton"] button{
         background-color:#6B8E23 !important;
         color:#FFFFFF !important;
+        border-radius:999px !important;
+
+        color-scheme: light !important;
+        filter: none !important;
       }
 
       [data-testid="stFileUploaderDropzone"]{
@@ -94,40 +110,12 @@ def inject_theme():
       }
 
       /* ==============================================================
-         FIX 1 — Safari oculta texto del radio a nivel superficial
-         ============================================================== */
-      div[data-testid="stRadio"] label span {
-          color: var(--rd-text) !important;
-          opacity: 1 !important;
-          font-weight: 600 !important;
-      }
-
-      /* ==============================================================
-         FIX 2 — Safari oculta TEXTO en un span más profundo
-         ============================================================== */
-      div[data-testid="stRadio"] div[role="radiogroup"] div[role="radio"] > label > div:nth-child(2) span {
-          color: var(--rd-text) !important;
-          opacity: 1 !important;
-          font-weight: 600 !important;
-      }
-
-      /* ==============================================================
-         FIX DEFINITIVO — Fuerza TODOS los spans del radio
+         FIX COMPLETO PARA QUE SE VEAN LOS RADIO BUTTONS EN SAFARI
          ============================================================== */
       div[data-testid="stRadio"] * span {
           color: var(--rd-text) !important;
           opacity: 1 !important;
           font-weight: 600 !important;
-      }
-
-      /* ==============================================================
-         FIX UNIVERSAL FINAL — Forzar el color sobre TODOS los nodos
-         ============================================================== */
-      div[data-testid="stRadio"] * {
-          color: var(--rd-text) !important;
-          fill: var(--rd-text) !important;
-          stroke: var(--rd-text) !important;
-          opacity: 1 !important;
       }
 
     </style>
@@ -243,7 +231,7 @@ if generar:
         if compartir_verguenza:
             apertura = "Tengo una confesión que hacer. Y aunque no es cómodo ni fácil de hacer, quiero hacerlo porque quizás pueda ayudarle a alguien que se encuentre en la misma situación. "
         elif compartir_encanta:
-            apertura = "No se imaginan lo que tengo que contarles 🤩 "
+            apertura = "No te imaginas lo que tengo que contarte 🤩 "
         else:
             apertura = "Tengo algo que me gustaría compartir. "
 
