@@ -60,16 +60,19 @@ def inject_theme():
         padding: 16px 18px;
       }
 
-      /* =============================
-         BOTONES VERDES RESTAURADOS
-         =============================*/
-      .stButton>button,
-      [data-testid="stFormSubmitter"] button,
+      .stButton>button{
+        background: var(--rd-accent) !important;
+        color: #fff !important;
+      }
+
+      [data-testid="stFormSubmitter"] button{
+        background-color:#6B8E23 !important;
+        color:#FFFFFF !important;
+      }
+
       [data-testid="stDownloadButton"] button{
         background-color:#6B8E23 !important;
         color:#FFFFFF !important;
-        border-radius: 12px !important;
-        font-weight:600 !important;
       }
 
       [data-testid="stFileUploaderDropzone"]{
@@ -90,9 +93,6 @@ def inject_theme():
         font-weight: 600 !important;
       }
 
-      /* ==============================================================
-         FIX UNIVERSAL — Safari oculta TEXTO DE RADIO
-         ============================================================== */
       div[data-testid="stRadio"] * {
           color: var(--rd-text) !important;
           fill: var(--rd-text) !important;
@@ -108,9 +108,6 @@ inject_theme()
 st.title("📖 Bitácora de Resultados")
 st.caption("Ingresa tu información, sube tus fotos y genera tu testimonio listo para compartir.")
 
-# =========================
-# Utilidades
-# =========================
 def _abrir_img(file) -> Image.Image:
     img = Image.open(file)
     img = ImageOps.exif_transpose(img)
@@ -147,9 +144,6 @@ def _formatea_num(n) -> str:
     except Exception:
         return str(n)
 
-# =========================
-# Formulario
-# =========================
 with st.form("form_testimonio"):
     st.markdown("<div class='rd-card'>", unsafe_allow_html=True)
 
@@ -185,72 +179,20 @@ with st.form("form_testimonio"):
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-# =========================
-# Procesamiento
-# =========================
 if generar:
-    faltantes = []
-    if peso_inicial == 0.0: faltantes.append("Peso inicial")
-    if peso_actual == 0.0: faltantes.append("Peso actual")
-    if not como_estabas.strip(): faltantes.append("Cómo te encontrabas antes de empezar")
-    if not como_te_sentias.strip(): faltantes.append("Cómo te sentías respecto a tu situación")
-    if not por_que_cambio.strip(): faltantes.append("Por qué decidiste cambiar")
-    if not en_que_ayudo.strip(): faltantes.append("En qué te ayudó el servicio")
-    if not mejoras_no_peso.strip(): faltantes.append("Mejoras no relacionadas con el peso")
-    if not como_te_sientes_hoy.strip(): faltantes.append("Cómo te sientes al respecto (hoy)")
-    if not objetivo_siguiente.strip(): faltantes.append("Siguiente objetivo")
-    if not foto_inicial: faltantes.append("Foto inicial")
-    if not foto_actual: faltantes.append("Foto actual")
+    diferencia = peso_inicial - peso_actual
+    diferencia_str = _formatea_num(diferencia)
 
-    if faltantes:
-        st.error("Por favor completa/sube lo siguiente: " + ", ".join(faltantes))
+    img_antes = _abrir_img(foto_inicial)
+    img_despues = _abrir_img(foto_actual)
+    imagen_unida = _juntar_lado_a_lado(img_antes, img_despues)
 
-    else:
-        if compartir_verguenza:
-            apertura = "Tengo una confesión que hacer. Y aunque no es cómodo ni fácil de hacer, quiero hacerlo porque quizás pueda ayudarle a alguien que se encuentre en la misma situación. "
-        elif compartir_encanta:
-            apertura = "No se imaginan lo que tengo que contarles 🤩 "
-        else:
-            apertura = "Tengo algo que me gustaría compartir. "
+    st.image(imagen_unida, use_container_width=True)
 
-        diferencia = peso_inicial - peso_actual
-        diferencia_str = _formatea_num(diferencia)
-
-        texto = (
-            apertura +
-            f"Hace no mucho me encontraba {como_estabas.strip()} lo cual me hacía sentir {como_te_sentias.strip()}. "
-            f"Decidí que ya no quería seguir así porque {por_que_cambio.strip()} así que busqué ayuda y asesoría. "
-            f"Encontré una Tribu que promovia habitos saludables y en ella encontre {en_que_ayudo.strip()} que siempre fue mi mayor reto. "
-            f"A la fecha he logrado {mejoras_no_peso.strip()} además de controlar {diferencia_str} kg. "
-            f"Me siento {como_te_sientes_hoy.strip()} por lo que he logrado y tengo claro que esto recién es el inicio. "
-            f"Mi próximo objetivo es {objetivo_siguiente.strip()}, lo mejor aun esta por venir 🙂"
-        )
-
-        img_antes = _abrir_img(foto_inicial)
-        img_despues = _abrir_img(foto_actual)
-        imagen_unida = _juntar_lado_a_lado(img_antes, img_despues)
-
-        st.markdown("<div class='rd-card rd-result'>", unsafe_allow_html=True)
-        st.subheader("✅ Resultado")
-        st.image(imagen_unida, use_container_width=True)
-
-        nombre_archivo = f"testimonio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-        st.download_button(
-            label="⬇️ Descargar imagen combinada (PNG)",
-            data=_png_bytes(imagen_unida),
-            file_name=nombre_archivo,
-            mime="image/png",
-            use_container_width=True
-        )
-
-        st.write("### 📋 Texto listo para copiar y pegar")
-        st.text_area("Selecciona y copia el texto:", value=texto, height=220)
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        with st.expander("Resumen numérico"):
-            st.markdown(
-                f"- **Peso inicial:** {_formatea_num(peso_inicial)} kg  \n"
-                f"- **Peso actual:** {_formatea_num(peso_actual)} kg  \n"
-                f"- **Diferencia controlada:** {diferencia_str} kg"
-            )
+    st.download_button(
+        label="⬇️ Descargar imagen combinada (PNG)",
+        data=_png_bytes(imagen_unida),
+        file_name="testimonio.png",
+        mime="image/png",
+        use_container_width=True
+    )
