@@ -31,7 +31,7 @@ def inject_theme():
         --rd-bg-end:#F7F3EE;
         --rd-card:#FFFFFF;
         --rd-border:#EAE6E1;
-        --rd-accent:#3A6B64;     /* verde acento */
+        --rd-accent:#3A6B64;
         --rd-accent-2:#8BBFB5;
         --rd-text:#1F2A2E;
         --rd-pill-bg:#EAF6F3;
@@ -60,35 +60,19 @@ def inject_theme():
         padding: 16px 18px;
       }
 
-      /* ===========================================================
-         BOTONES VERDES — FIX DEFINITIVO PARA STREAMLIT CLOUD + SAFARI
-         =========================================================== */
-      .stButton>button {
-        background-color: var(--rd-accent) !important;
-        border: 1px solid var(--rd-accent) !important;
-        color: #FFFFFF !important;
-        border-radius: 999px !important;
-        padding: .75rem 1.1rem !important;
-        font-weight: 700 !important;
-
-        /* FIX QUE EVITA QUE CLOUD LOS PINTE NEGROS */
-        color-scheme: light !important;
-        filter: none !important;
+      .stButton>button{
+        background: var(--rd-accent) !important;
+        color: #fff !important;
       }
 
       [data-testid="stFormSubmitter"] button{
         background-color:#6B8E23 !important;
         color:#FFFFFF !important;
-        border-radius:999px !important;
       }
 
       [data-testid="stDownloadButton"] button{
         background-color:#6B8E23 !important;
         color:#FFFFFF !important;
-        border-radius:999px !important;
-
-        color-scheme: light !important;
-        filter: none !important;
       }
 
       [data-testid="stFileUploaderDropzone"]{
@@ -109,10 +93,33 @@ def inject_theme():
         font-weight: 600 !important;
       }
 
-      /* ==============================================================
-         FIX COMPLETO PARA QUE SE VEAN LOS RADIO BUTTONS EN SAFARI
-         ============================================================== */
-      div[data-testid="stRadio"] * span {
+      /* ===================================================================
+         ⭐ FIX DEFINITIVO PARA SAFARI (Streamlit Cloud + radios)
+         =================================================================== */
+
+      /* Fuerza color del texto en CUALQUIER nodo dentro del radiogroup */
+      div[data-testid="stRadio"] * {
+          color: var(--rd-text) !important;
+          opacity: 1 !important;
+          font-weight: 600 !important;
+      }
+
+      /* Fuerza color en spans incluso dentro de Shadow DOM */
+      div[data-testid="stRadio"] span {
+          color: var(--rd-text) !important;
+          opacity: 1 !important;
+          font-weight: 600 !important;
+      }
+
+      /* Safari coloca el texto en un DIV oculto, lo forzamos también */
+      div[role="radiogroup"] div[role="radio"] * {
+          color: var(--rd-text) !important;
+          opacity: 1 !important;
+          font-weight: 600 !important;
+      }
+
+      /* A veces Safari encierra el texto en un <p> invisible – también se forza */
+      div[data-testid="stRadio"] p {
           color: var(--rd-text) !important;
           opacity: 1 !important;
           font-weight: 600 !important;
@@ -236,47 +243,4 @@ if generar:
             apertura = "Tengo algo que me gustaría compartir. "
 
         diferencia = peso_inicial - peso_actual
-        diferencia_str = _formatea_num(diferencia)
-
-        texto = (
-            apertura +
-            f"Hace no mucho me encontraba {como_estabas.strip()} lo cual me hacía sentir {como_te_sentias.strip()}. "
-            f"Decidí que ya no quería seguir así porque {por_que_cambio.strip()} así que busqué ayuda y asesoría. "
-            f"Encontré una Tribu que promovia habitos saludables y en ella encontre {en_que_ayudo.strip()} que siempre fue mi mayor reto. "
-            f"A la fecha he logrado {mejoras_no_peso.strip()} además de controlar {diferencia_str} kg. "
-            f"Me siento {como_te_sientes_hoy.strip()} por lo que he logrado y tengo claro que esto recién es el inicio. "
-            f"Mi próximo objetivo es {objetivo_siguiente.strip()}, lo mejor aun esta por venir 🙂"
-        )
-
-        try:
-            img_antes = _abrir_img(foto_inicial)
-            img_despues = _abrir_img(foto_actual)
-            imagen_unida = _juntar_lado_a_lado(img_antes, img_despues)
-        except Exception as e:
-            st.error(f"Ocurrió un problema al procesar las imágenes: {e}")
-            st.stop()
-
-        st.markdown("<div class='rd-card rd-result'>", unsafe_allow_html=True)
-        st.subheader("✅ Resultado")
-        st.image(imagen_unida, use_container_width=True)
-
-        nombre_archivo = f"testimonio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-        st.download_button(
-            label="⬇️ Descargar imagen combinada (PNG)",
-            data=_png_bytes(imagen_unida),
-            file_name=nombre_archivo,
-            mime="image/png",
-            use_container_width=True
-        )
-
-        st.write("### 📋 Texto listo para copiar y pegar")
-        st.text_area("Selecciona y copia el texto:", value=texto, height=220)
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        with st.expander("Resumen numérico"):
-            st.markdown(
-                f"- **Peso inicial:** {_formatea_num(peso_inicial)} kg  \n"
-                f"- **Peso actual:** {_formatea_num(peso_actual)} kg  \n"
-                f"- **Diferencia controlada:** {diferencia_str} kg"
-            )
+        diferencia_str =
