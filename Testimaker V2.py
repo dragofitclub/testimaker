@@ -3,9 +3,6 @@
 """
 App de Streamlit para crear testimonios con foto comparativa (antes/después)
 Autor: Rodrigo & ChatGPT
-Instrucciones:
-1) pip install streamlit pillow
-2) streamlit run app_testimonios.py
 """
 
 from __future__ import annotations
@@ -24,15 +21,19 @@ st.set_page_config(page_title="TestiMaker", page_icon="💬", layout="centered")
 def inject_theme():
     st.markdown("""
     <style>
+
+      :root {
+          color-scheme: light !important;
+      }
+
       :root{
-        /* Paleta crema + acentos verde salvia */
         --rd-bg-start:#FFF9F4;
         --rd-bg-end:#F7F3EE;
         --rd-card:#FFFFFF;
         --rd-border:#EAE6E1;
-        --rd-accent:#3A6B64;     /* principal */
-        --rd-accent-2:#8BBFB5;   /* secundario */
-        --rd-text:#1F2A2E;       /* gris petróleo */
+        --rd-accent:#3A6B64;
+        --rd-accent-2:#8BBFB5;
+        --rd-text:#1F2A2E;
         --rd-pill-bg:#EAF6F3;
         --rd-shadow:0 10px 24px rgba(20,40,40,.08);
         --rd-radius:18px;
@@ -40,37 +41,17 @@ def inject_theme():
         --rd-input-border:#D5E2DE;
       }
 
-      /* Fondo + tipografía */
       [data-testid="stAppViewContainer"]{
         background: linear-gradient(180deg,var(--rd-bg-start),var(--rd-bg-end)) fixed;
         color: var(--rd-text);
-        font-family: "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
       }
+
       .block-container{ max-width: 980px; }
 
-      /* Títulos */
       h1, h2, h3{
-        font-family: ui-serif, Georgia, "Times New Roman", serif !important;
         color: var(--rd-accent);
-        letter-spacing:.2px;
-      }
-      h1{
-        position: relative;
-        display: inline-block;
-        padding-bottom: .25rem;
-        margin-bottom: .75rem;
-      }
-      h1:after{
-        content:"";
-        position:absolute; left:0; bottom:0;
-        width: 56%;
-        height: 8px;
-        background: linear-gradient(90deg,var(--rd-accent-2),transparent);
-        border-radius: 999px;
-        opacity:.6;
       }
 
-      /* Tarjetas */
       .rd-card{
         background: var(--rd-card);
         border: 1px solid var(--rd-border);
@@ -79,147 +60,76 @@ def inject_theme():
         padding: 16px 18px;
       }
 
-      /* Botones estándar (no submit del form) */
       .stButton>button{
         background: var(--rd-accent) !important;
         color: #fff !important;
-        padding: .75rem 1.1rem !important;
-        border-radius: 999px !important;
-        border: 1px solid var(--rd-accent) !important;
-        box-shadow: var(--rd-shadow) !important;
-        font-weight: 700 !important;
-        transition: transform .03s ease, background .2s ease;
-      }
-      .stButton>button:hover{ background:#2F5A53 !important; transform: translateY(-1px); }
-      .stButton>button:focus{ outline: 3px solid var(--rd-accent-2) !important; }
-
-      /* ====== SOLO el submit del form: SIEMPRE verde oliva ====== */
-      [data-testid="stFormSubmitter"],
-      [data-testid="stFormSubmitter"] > div{ background: transparent !important; }
-      [data-testid="stFormSubmitter"] button,
-      [data-testid="baseButton-primaryFormSubmit"],
-      [data-testid="baseButton-secondaryFormSubmit"],
-      button[kind="primaryFormSubmit"],
-      button[kind="secondaryFormSubmit"]{
-        background-color:#6B8E23 !important;
-        background-image:none !important;
-        color:#FFFFFF !important;
-        border:1px solid #6B8E23 !important;
-        border-radius:999px !important;
-        padding:.80rem 1.2rem !important;
-        font-weight:800 !important;
-        box-shadow: var(--rd-shadow) !important;
-        opacity:1 !important;
-        filter:none !important;
-      }
-      [data-testid="stFormSubmitter"] button:hover,
-      [data-testid="baseButton-primaryFormSubmit"]:hover,
-      [data-testid="baseButton-secondaryFormSubmit"]:hover,
-      button[kind="primaryFormSubmit"]:hover,
-      button[kind="secondaryFormSubmit"]:hover{
-        background-color:#5E7F1F !important;
-        color:#FFFFFF !important;
-        transform: translateY(-1px);
-      }
-      [data-testid="stFormSubmitter"] button:disabled,
-      [data-testid="baseButton-primaryFormSubmit"]:disabled,
-      [data-testid="baseButton-secondaryFormSubmit"]:disabled,
-      button[kind="primaryFormSubmit"]:disabled,
-      button[kind="secondaryFormSubmit"]:disabled{
-        background-color:#6B8E23 !important;
-        color:#FFFFFF !important;
-        opacity:.65 !important;
-        filter:none !important;
       }
 
-      /* ====== st.download_button SIEMPRE verde oliva ====== */
-      [data-testid="stDownloadButton"] button,
-      .stDownloadButton > button{
-        background-color:#6B8E23 !important;
-        background-image:none !important;
-        color:#FFFFFF !important;
-        border:1px solid #6B8E23 !important;
-        border-radius:999px !important;
-        padding:.80rem 1.2rem !important;
-        font-weight:800 !important;
-        box-shadow: var(--rd-shadow) !important;
-        opacity:1 !important;
-        filter:none !important;
-      }
-      [data-testid="stDownloadButton"] button:hover,
-      .stDownloadButton > button:hover{
-        background-color:#5E7F1F !important;
-        color:#FFFFFF !important;
-        transform: translateY(-1px);
-      }
-      [data-testid="stDownloadButton"] button:disabled,
-      .stDownloadButton > button:disabled{
+      [data-testid="stFormSubmitter"] button{
         background-color:#6B8E23 !important;
         color:#FFFFFF !important;
-        opacity:.65 !important;
       }
 
-      /* ====== File Uploader (dropzone + “Browse files”) ====== */
-      [data-testid="stFileUploader"] [data-baseweb="file-uploader"] > div,
-      [data-testid="stFileUploaderDropzone"],
-      [data-testid="stFileUploader"] .uploadDropzone,
-      [data-testid="stFileUploader"] section div:has(> div[role="button"]) {
+      [data-testid="stDownloadButton"] button{
+        background-color:#6B8E23 !important;
+        color:#FFFFFF !important;
+      }
+
+      [data-testid="stFileUploaderDropzone"]{
         background-color:#EAF6F3 !important;
-        border:1px solid #8BBFB5 !important;
-        border-radius:16px !important;
-        color: var(--rd-text) !important;
-      }
-      [data-testid="stFileUploader"] [data-baseweb="file-uploader"] *,
-      [data-testid="stFileUploaderDropzone"] *{
-        color: var(--rd-text) !important;
-      }
-      [data-testid="stFileUploader"] button{
-        background-color:#6B8E23 !important;
-        color:#FFFFFF !important;
-        border:1px solid #6B8E23 !important;
-        border-radius:999px !important;
-        font-weight:700 !important;
-      }
-      [data-testid="stFileUploader"] button:hover{
-        background-color:#5E7F1F !important;
-        color:#FFFFFF !important;
       }
 
-      /* Inputs */
       [data-testid="stTextInput"] input,
       [data-testid="stTextArea"] textarea,
-      [data-testid="stNumberInput"] input,
-      [data-testid="stDateInput"] input,
-      .stSelectbox [data-baseweb="select"] > div{
+      [data-testid="stNumberInput"] input{
         background: var(--rd-input-bg) !important;
         border: 1px solid var(--rd-input-border) !important;
         color: var(--rd-text) !important;
-        border-radius: 14px !important;
-        box-shadow: none !important;
       }
 
-      /* Legibilidad de etiquetas */
-      [data-testid="stWidgetLabel"] > label,
-      [data-testid="stTextInput"] label,
-      [data-testid="stTextArea"] label,
-      [data-testid="stNumberInput"] label,
-      [data-testid="stFileUploader"] label,
       label{
         color: var(--rd-text) !important;
         opacity: 1 !important;
         font-weight: 600 !important;
-        font-size: 0.95rem !important;
       }
 
-      /* Placeholders más visibles */
-      [data-testid="stTextInput"] input::placeholder,
-      [data-testid="stTextArea"] textarea::placeholder{
-        color: rgba(31,42,46,.75) !important;
+      /* ==============================================================
+         FIX 1 — Safari oculta texto del radio a nivel superficial
+         ============================================================== */
+      div[data-testid="stRadio"] label span {
+          color: var(--rd-text) !important;
+          opacity: 1 !important;
+          font-weight: 600 !important;
       }
 
-      hr, .stDivider { opacity:.6; border-color: var(--rd-border) !important; }
-      .rd-result h3{ margin-top: .25rem; }
-      .rd-pill{ background: var(--rd-pill-bg); color: var(--rd-accent); padding:2px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+      /* ==============================================================
+         FIX 2 — Safari oculta TEXTO en un span más profundo
+         ============================================================== */
+      div[data-testid="stRadio"] div[role="radiogroup"] div[role="radio"] > label > div:nth-child(2) span {
+          color: var(--rd-text) !important;
+          opacity: 1 !important;
+          font-weight: 600 !important;
+      }
+
+      /* ==============================================================
+         FIX DEFINITIVO — Fuerza TODOS los spans del radio
+         ============================================================== */
+      div[data-testid="stRadio"] * span {
+          color: var(--rd-text) !important;
+          opacity: 1 !important;
+          font-weight: 600 !important;
+      }
+
+      /* ==============================================================
+         FIX UNIVERSAL FINAL — Forzar el color sobre TODOS los nodos
+         ============================================================== */
+      div[data-testid="stRadio"] * {
+          color: var(--rd-text) !important;
+          fill: var(--rd-text) !important;
+          stroke: var(--rd-text) !important;
+          opacity: 1 !important;
+      }
+
     </style>
     """, unsafe_allow_html=True)
 
@@ -232,7 +142,6 @@ st.caption("Ingresa tu información, sube tus fotos y genera tu testimonio listo
 # Utilidades
 # =========================
 def _abrir_img(file) -> Image.Image:
-    """Abre una imagen de Streamlit FileUploader con corrección de orientación y en RGB."""
     img = Image.open(file)
     img = ImageOps.exif_transpose(img)
     if img.mode != "RGB":
@@ -240,7 +149,6 @@ def _abrir_img(file) -> Image.Image:
     return img
 
 def _juntar_lado_a_lado(img_izq: Image.Image, img_der: Image.Image, alto_objetivo: int = 900, separador_px: int = 0) -> Image.Image:
-    """Une dos imágenes lado a lado manteniendo proporciones."""
     def redimensionar(img: Image.Image, alto_target: int) -> Image.Image:
         w, h = img.size
         if h == alto_target:
@@ -270,16 +178,14 @@ def _formatea_num(n) -> str:
         return str(n)
 
 # =========================
-# Formulario (ahora 100% vertical, orden 1→11)
+# Formulario
 # =========================
 with st.form("form_testimonio"):
     st.markdown("<div class='rd-card'>", unsafe_allow_html=True)
 
-    # 1 y 2 (pesos)
     peso_inicial = st.number_input("1) Peso inicial (kg)", min_value=0.0, step=0.1, format="%.1f")
     peso_actual = st.number_input("2) Peso actual (kg)", min_value=0.0, step=0.1, format="%.1f")
 
-    # 3 a 9 (texto)
     como_estabas = st.text_area("3) ¿Cómo te encontrabas antes de empezar? (energía, digestión, dolores, etc.)", height=100)
     como_te_sentias = st.text_area("4) ¿Cómo te sentías respecto a tu situación?", height=100)
     por_que_cambio = st.text_area("5) ¿Por qué decidiste que era momento de hacer un cambio?", height=80)
@@ -288,15 +194,33 @@ with st.form("form_testimonio"):
     como_te_sientes_hoy = st.text_input("8) ¿Cómo te sientes al respecto (hoy)?")
     objetivo_siguiente = st.text_input("9) ¿Cuál es tu siguiente objetivo?")
 
-    # 10 y 11 (fotos)
+    st.write("**¿Cómo te sentirías si compartieras tu resultado con otras personas?**")
+
+    opciones = [
+        "Me encantaría 🤩",
+        "Normal 🤨",
+        "Me costaría un poco 🫣"
+    ]
+
+    seleccion = st.radio(
+        "",
+        opciones,
+        horizontal=True
+    )
+
+    compartir_encanta = seleccion == "Me encantaría 🤩"
+    compartir_normal = seleccion == "Normal 🤨"
+    compartir_verguenza = seleccion == "Me costaría un poco 🫣"
+
     foto_inicial = st.file_uploader("10) Subir **Foto inicial**", type=["jpg", "jpeg", "png"])
     foto_actual = st.file_uploader("11) Subir **Foto actual**", type=["jpg", "jpeg", "png"])
 
     generar = st.form_submit_button("Generar testimonio", use_container_width=True)
+
     st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================
-# Procesamiento (igual)
+# Procesamiento
 # =========================
 if generar:
     faltantes = []
@@ -315,31 +239,38 @@ if generar:
     if faltantes:
         st.error("Por favor completa/sube lo siguiente: " + ", ".join(faltantes))
     else:
+
+        if compartir_verguenza:
+            apertura = "Tengo una confesión que hacer. Y aunque no es cómodo ni fácil de hacer, quiero hacerlo porque quizás pueda ayudarle a alguien que se encuentre en la misma situación. "
+        elif compartir_encanta:
+            apertura = "No se imaginan lo que tengo que contarles 🤩 "
+        else:
+            apertura = "Tengo algo que me gustaría compartir. "
+
         diferencia = peso_inicial - peso_actual
         diferencia_str = _formatea_num(diferencia)
 
         texto = (
-            "Tengo una confesión que hacer. Y aunque no es cómodo ni fácil de hacer, quiero hacerlo porque "
-            "quizás pueda ayudarle a alguien que se encuentre en la misma situación. "
+            apertura +
             f"Hace no mucho me encontraba {como_estabas.strip()} lo cual me hacía sentir {como_te_sentias.strip()}. "
             f"Decidí que ya no quería seguir así porque {por_que_cambio.strip()} así que busqué ayuda y asesoría. "
             f"Encontré una Tribu que promovia habitos saludables y en ella encontre {en_que_ayudo.strip()} que siempre fue mi mayor reto. "
             f"A la fecha he logrado {mejoras_no_peso.strip()} además de controlar {diferencia_str} kg. "
             f"Me siento {como_te_sientes_hoy.strip()} por lo que he logrado y tengo claro que esto recién es el inicio. "
-            f"Mi próximo objetivo es {objetivo_siguiente.strip()}, lo mejor aun esta por venir :)"
+            f"Mi próximo objetivo es {objetivo_siguiente.strip()}, lo mejor aun esta por venir 🙂"
         )
 
         try:
             img_antes = _abrir_img(foto_inicial)
             img_despues = _abrir_img(foto_actual)
-            imagen_unida = _juntar_lado_a_lado(img_antes, img_despues, alto_objetivo=900, separador_px=0)
+            imagen_unida = _juntar_lado_a_lado(img_antes, img_despues)
         except Exception as e:
             st.error(f"Ocurrió un problema al procesar las imágenes: {e}")
             st.stop()
 
         st.markdown("<div class='rd-card rd-result'>", unsafe_allow_html=True)
         st.subheader("✅ Resultado")
-        st.image(imagen_unida, caption="Foto 10 (Inicial) | Foto 11 (Actual) – Imagen combinada", use_container_width=True)
+        st.image(imagen_unida, use_container_width=True)
 
         nombre_archivo = f"testimonio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
         st.download_button(
@@ -352,6 +283,7 @@ if generar:
 
         st.write("### 📋 Texto listo para copiar y pegar")
         st.text_area("Selecciona y copia el texto:", value=texto, height=220)
+
         st.markdown("</div>", unsafe_allow_html=True)
 
         with st.expander("Resumen numérico"):
