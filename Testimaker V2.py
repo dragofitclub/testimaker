@@ -93,36 +93,37 @@ def inject_theme():
         font-weight: 600 !important;
       }
 
-      /* ===================================================================
-         ⭐ FIX DEFINITIVO PARA SAFARI (Streamlit Cloud + radios)
-         =================================================================== */
-
-      /* Fuerza color del texto en CUALQUIER nodo dentro del radiogroup */
-      div[data-testid="stRadio"] * {
+      /* ==============================================================
+         FIX SAFARI — Forzar TODOS los spans del radio
+      ============================================================== */
+      div[data-testid="stRadio"] * span {
           color: var(--rd-text) !important;
           opacity: 1 !important;
           font-weight: 600 !important;
       }
 
-      /* Fuerza color en spans incluso dentro de Shadow DOM */
-      div[data-testid="stRadio"] span {
-          color: var(--rd-text) !important;
-          opacity: 1 !important;
+      /* ==============================================================
+         FIX BOTONES VERDES — Restaurar estilo original
+      ============================================================== */
+
+      .stButton > button,
+      button[kind="primary"],
+      button[data-testid="stFormSubmitter"],
+      [data-testid="stDownloadButton"] button {
+          background-color: #6B8E23 !important;
+          color: #FFFFFF !important;
+          border-radius: 50px !important;
+          height: 52px !important;
+          font-size: 18px !important;
           font-weight: 600 !important;
+          border: none !important;
       }
 
-      /* Safari coloca el texto en un DIV oculto, lo forzamos también */
-      div[role="radiogroup"] div[role="radio"] * {
-          color: var(--rd-text) !important;
-          opacity: 1 !important;
-          font-weight: 600 !important;
-      }
-
-      /* A veces Safari encierra el texto en un <p> invisible – también se forza */
-      div[data-testid="stRadio"] p {
-          color: var(--rd-text) !important;
-          opacity: 1 !important;
-          font-weight: 600 !important;
+      .stButton > button:hover,
+      button[kind="primary"]:hover,
+      [data-testid="stFormSubmitter"] button:hover,
+      [data-testid="stDownloadButton"] button:hover {
+          background-color: #5E7E20 !important;
       }
 
     </style>
