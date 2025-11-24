@@ -60,19 +60,16 @@ def inject_theme():
         padding: 16px 18px;
       }
 
-      .stButton>button{
-        background: var(--rd-accent) !important;
-        color: #fff !important;
-      }
-
-      [data-testid="stFormSubmitter"] button{
-        background-color:#6B8E23 !important;
-        color:#FFFFFF !important;
-      }
-
+      /* =============================
+         BOTONES VERDES RESTAURADOS
+         =============================*/
+      .stButton>button,
+      [data-testid="stFormSubmitter"] button,
       [data-testid="stDownloadButton"] button{
         background-color:#6B8E23 !important;
         color:#FFFFFF !important;
+        border-radius: 12px !important;
+        font-weight:600 !important;
       }
 
       [data-testid="stFileUploaderDropzone"]{
@@ -94,36 +91,13 @@ def inject_theme():
       }
 
       /* ==============================================================
-         FIX SAFARI — Forzar TODOS los spans del radio
-      ============================================================== */
-      div[data-testid="stRadio"] * span {
+         FIX UNIVERSAL — Safari oculta TEXTO DE RADIO
+         ============================================================== */
+      div[data-testid="stRadio"] * {
           color: var(--rd-text) !important;
+          fill: var(--rd-text) !important;
+          stroke: var(--rd-text) !important;
           opacity: 1 !important;
-          font-weight: 600 !important;
-      }
-
-      /* ==============================================================
-         FIX BOTONES VERDES — Restaurar estilo original
-      ============================================================== */
-
-      .stButton > button,
-      button[kind="primary"],
-      button[data-testid="stFormSubmitter"],
-      [data-testid="stDownloadButton"] button {
-          background-color: #6B8E23 !important;
-          color: #FFFFFF !important;
-          border-radius: 50px !important;
-          height: 52px !important;
-          font-size: 18px !important;
-          font-weight: 600 !important;
-          border: none !important;
-      }
-
-      .stButton > button:hover,
-      button[kind="primary"]:hover,
-      [data-testid="stFormSubmitter"] button:hover,
-      [data-testid="stDownloadButton"] button:hover {
-          background-color: #5E7E20 !important;
       }
 
     </style>
@@ -198,11 +172,7 @@ with st.form("form_testimonio"):
         "Me costaría un poco 🫣"
     ]
 
-    seleccion = st.radio(
-        "",
-        opciones,
-        horizontal=True
-    )
+    seleccion = st.radio("", opciones, horizontal=True)
 
     compartir_encanta = seleccion == "Me encantaría 🤩"
     compartir_normal = seleccion == "Normal 🤨"
@@ -234,12 +204,12 @@ if generar:
 
     if faltantes:
         st.error("Por favor completa/sube lo siguiente: " + ", ".join(faltantes))
-    else:
 
+    else:
         if compartir_verguenza:
             apertura = "Tengo una confesión que hacer. Y aunque no es cómodo ni fácil de hacer, quiero hacerlo porque quizás pueda ayudarle a alguien que se encuentre en la misma situación. "
         elif compartir_encanta:
-            apertura = "No te imaginas lo que tengo que contarte 🤩 "
+            apertura = "No se imaginan lo que tengo que contarles 🤩 "
         else:
             apertura = "Tengo algo que me gustaría compartir. "
 
@@ -256,13 +226,9 @@ if generar:
             f"Mi próximo objetivo es {objetivo_siguiente.strip()}, lo mejor aun esta por venir 🙂"
         )
 
-        try:
-            img_antes = _abrir_img(foto_inicial)
-            img_despues = _abrir_img(foto_actual)
-            imagen_unida = _juntar_lado_a_lado(img_antes, img_despues)
-        except Exception as e:
-            st.error(f"Ocurrió un problema al procesar las imágenes: {e}")
-            st.stop()
+        img_antes = _abrir_img(foto_inicial)
+        img_despues = _abrir_img(foto_actual)
+        imagen_unida = _juntar_lado_a_lado(img_antes, img_despues)
 
         st.markdown("<div class='rd-card rd-result'>", unsafe_allow_html=True)
         st.subheader("✅ Resultado")
