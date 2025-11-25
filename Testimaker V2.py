@@ -7,6 +7,7 @@ Autor: Rodrigo & ChatGPT
 
 from __future__ import annotations
 from io import BytesIO
+from datetime import datetime
 from pathlib import Path
 import base64
 
@@ -14,12 +15,12 @@ import streamlit as st
 from PIL import Image, ImageOps
 
 # =========================
-# Configuración de página
+# Configuración básica
 # =========================
 st.set_page_config(page_title="TestiMaker", page_icon="💬", layout="centered")
 
 # =========================
-# CSS: modo claro forzado incluso en Safari
+# CSS: modo claro + paleta original + logo fijo
 # =========================
 def inject_theme():
     st.markdown("""
@@ -84,7 +85,7 @@ def inject_theme():
         opacity: 1 !important;
       }
 
-      /* Botón */
+      /* Botón principal (submit del form) */
       button[data-testid="stBaseButton-secondaryFormSubmit"] {
           background-color: #8CAC3F !important;
           color: white !important;
@@ -134,9 +135,8 @@ def inject_theme():
 
 inject_theme()
 
-
 # =========================
-# Logo
+# Logo fijo superior derecho
 # =========================
 APP_DIR = Path(__file__).parent.resolve()
 logo_path = APP_DIR / "logo.png"
@@ -149,9 +149,14 @@ if logo_path.exists():
         unsafe_allow_html=True
     )
 
+# =========================
+# Título
+# =========================
+st.title("📖 Bitácora de Resultados")
+st.caption("Ingresa tu información, sube tus fotos y genera tu testimonio listo para compartir.")
 
 # =========================
-# Funciones de imagen
+# Utilidades
 # =========================
 def _abrir_img(file) -> Image.Image:
     img = Image.open(file)
@@ -160,66 +165,174 @@ def _abrir_img(file) -> Image.Image:
         img = img.convert("RGB")
     return img
 
+def _juntar_lado_a_lado(
+    img_izq: Image.Image,
+    img_der: Image.Image,
+    alto_objetivo: int = 900,
+    separador_px: int = 0
+) -> Image.Image:
+    def redimensionar(img: Image.Image, alto_target: int) -> Image.Image:
+        w, h = img.size
+        if h == alto_target:
+            return img
+        nuevo_w = int(round(w * (alto_target / h)))
+        return img.resize((nuevo_w, alto_target), Image.LANCZOS)
 
-def _juntar_lado_a_lado(img_izq: Image.Image, img_der: Image.Image, alto_objetivo=900):
-    izq = img_izq.resize((int(img_izq.width * (alto_objetivo / img_izq.height)), alto_objetivo))
-    der = img_der.resize((int(img_der.width * (alto_objetivo / img_der.height)), alto_objetivo))
-    canvas = Image.new("RGB", (izq.width + der.width, alto_objetivo), (255, 255, 255))
+    izq = redimensionar(img_izq, alto_objetivo)
+    der = redimensionar(img_der, alto_objetivo)
+
+    w_total = izq.width + separador_px + der.width
+    canvas = Image.new("RGB", (w_total, alto_objetivo), (255, 255, 255))
     canvas.paste(izq, (0, 0))
-    canvas.paste(der, (izq.width, 0))
+    canvas.paste(der, (izq.width + separador_px, 0))
     return canvas
 
-
-def _png_bytes(img):
+def _png_bytes(img: Image.Image) -> bytes:
     buf = BytesIO()
-    img.save(buf, format="PNG")
+    img.save(buf, format="PNG", optimize=True)
     buf.seek(0)
     return buf.read()
 
+def _formatea_num(n) -> str:
+    try:
+        return f"{float(n):.1f}".rstrip("0").rstrip(".")
+    except Exception:
+        return str(n)
 
 # =========================
-# UI
+# Formulario
 # =========================
-st.title("📖 Bitácora de Resultados")
-st.caption("Ingresa tu información, sube tus fotos y genera tu testimonio listo para compartir.")
-
 with st.form("form_testimonio"):
     st.markdown("<div class='rd-card'>", unsafe_allow_html=True)
 
-    peso_inicial = st.number_input("1) Peso inicial (kg)", min_value=0.0, step=0.1)
-    peso_actual = st.number_input("2) Peso actual (kg)", min_value=0.0, step=0.1)
+    peso_inicial = st.number_input("1) Peso inicial (kg)", min_value=0.0, step=0.1, format="%.1f")
+    peso_actual = st.number_input("2) Peso actual (kg)", min_value=0.0, step=0.1, format="%.1f")
 
-    como_estabas = st.text_area("3) ¿Cómo te encontrabas antes de empezar?", height=100)
-    como_te_sentias = st.text_area("4) ¿Cómo te sentías respecto a tu situación?", height=100)
-    por_que_cambio = st.text_area("5) ¿Por qué decidiste hacer un cambio?", height=80)
-    en_que_ayudo = st.text_area("6) ¿En qué te ayudó el servicio?", height=100)
-    mejoras_no_peso = st.text_area("7) ¿Qué mejoras no relacionadas con el peso has logrado?", height=100)
-    como_te_sientes_hoy = st.text_input("8) ¿Cómo te sientes hoy?")
+    como_estabas = st.text_area(
+        "3) ¿Cómo te encontrabas antes de empezar? (energía, digestión, dolores, etc.)",
+        height=100
+    )
+    como_te_sentias = st.text_area(
+        "4) ¿Cómo te sentías respecto a tu situación?",
+        height=100
+    )
+    por_que_cambio = st.text_area(
+        "5) ¿Por qué decidiste que era momento de hacer un cambio?",
+        height=80
+    )
+    en_que_ayudo = st.text_area(
+        "6) ¿En qué te ayudó el servicio que no podías resolver por tu cuenta?",
+        height=100
+    )
+    mejoras_no_peso = st.text_area(
+        "7) ¿Qué mejoras no relacionadas con el peso has logrado?",
+        height=100
+    )
+    como_te_sientes_hoy = st.text_input("8) ¿Cómo te sientes al respecto (hoy)?")
     objetivo_siguiente = st.text_input("9) ¿Cuál es tu siguiente objetivo?")
 
-    st.write("**¿Cómo te sentirías si compartieras tu resultado?**")
+    st.write("**¿Cómo te sentirías si compartieras tu resultado con otras personas?**")
 
-    seleccion = st.radio("", ["Me encantaría 🤩", "Normal 🤨", "Me costaría un poco 🫣"], horizontal=True)
+    opciones = [
+        "Me encantaría 🤩",
+        "Normal 🤨",
+        "Me costaría un poco 🫣"
+    ]
 
-    foto_inicial = st.file_uploader("10) Subir **Foto inicial**", type=["jpg","jpeg","png"])
-    foto_actual = st.file_uploader("11) Subir **Foto actual**", type=["jpg","jpeg","png"])
+    seleccion = st.radio(
+        "",
+        opciones,
+        horizontal=True
+    )
+
+    compartir_encanta = seleccion == "Me encantaría 🤩"
+    compartir_normal = seleccion == "Normal 🤨"
+    compartir_verguenza = seleccion == "Me costaría un poco 🫣"
+
+    foto_inicial = st.file_uploader("10) Subir **Foto inicial**", type=["jpg", "jpeg", "png"])
+    foto_actual = st.file_uploader("11) Subir **Foto actual**", type=["jpg", "jpeg", "png"])
 
     generar = st.form_submit_button("Generar testimonio", use_container_width=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-
+# =========================
+# Procesamiento
+# =========================
 if generar:
-    img_antes = _abrir_img(foto_inicial)
-    img_despues = _abrir_img(foto_actual)
-    imagen_final = _juntar_lado_a_lado(img_antes, img_despues)
+    faltantes = []
+    if peso_inicial == 0.0: faltantes.append("Peso inicial")
+    if peso_actual == 0.0: faltantes.append("Peso actual")
+    if not como_estabas.strip(): faltantes.append("Cómo te encontrabas antes de empezar")
+    if not como_te_sentias.strip(): faltantes.append("Cómo te sentías respecto a tu situación")
+    if not por_que_cambio.strip(): faltantes.append("Por qué decidiste cambiar")
+    if not en_que_ayudo.strip(): faltantes.append("En qué te ayudó el servicio")
+    if not mejoras_no_peso.strip(): faltantes.append("Mejoras no relacionadas con el peso")
+    if not como_te_sientes_hoy.strip(): faltantes.append("Cómo te sientes al respecto (hoy)")
+    if not objetivo_siguiente.strip(): faltantes.append("Siguiente objetivo")
+    if not foto_inicial: faltantes.append("Foto inicial")
+    if not foto_actual: faltantes.append("Foto actual")
 
-    st.image(imagen_final, use_container_width=True)
+    if faltantes:
+        st.error("Por favor completa/sube lo siguiente: " + ", ".join(faltantes))
+    else:
+        # Apertura según cómo se siente al compartir
+        if compartir_verguenza:
+            apertura = (
+                "Tengo una confesión que hacer. Y aunque no es cómodo ni fácil de hacer, "
+                "quiero hacerlo porque quizás pueda ayudarle a alguien que se encuentre en la misma situación. "
+            )
+        elif compartir_encanta:
+            apertura = "No se imaginan lo que tengo que contarles 🤩 "
+        else:  # compartir_normal
+            apertura = "Tengo algo que me gustaría compartir. "
 
-    st.download_button(
-        label="⬇️ Descargar imagen (PNG)",
-        data=_png_bytes(imagen_final),
-        file_name="testimonio.png",
-        mime="image/png",
-        use_container_width=True
-    )
+        diferencia = peso_inicial - peso_actual
+        diferencia_str = _formatea_num(diferencia)
+
+        texto = (
+            apertura +
+            f"Hace no mucho me encontraba {como_estabas.strip()} lo cual me hacía sentir {como_te_sentias.strip()}. "
+            f"Decidí que ya no quería seguir así porque {por_que_cambio.strip()} así que busqué ayuda y asesoría. "
+            f"Encontré una Tribu que promovia habitos saludables y en ella encontre {en_que_ayudo.strip()} que siempre fue mi mayor reto. "
+            f"A la fecha he logrado {mejoras_no_peso.strip()} además de controlar {diferencia_str} kg. "
+            f"Me siento {como_te_sientes_hoy.strip()} por lo que he logrado y tengo claro que esto recién es el inicio. "
+            f"Mi próximo objetivo es {objetivo_siguiente.strip()}, lo mejor aun esta por venir 🙂"
+        )
+
+        # Procesar imágenes
+        try:
+            img_antes = _abrir_img(foto_inicial)
+            img_despues = _abrir_img(foto_actual)
+            imagen_unida = _juntar_lado_a_lado(img_antes, img_despues)
+        except Exception as e:
+            st.error(f"Ocurrió un problema al procesar las imágenes: {e}")
+            st.stop()
+
+        # Resultado visual
+        st.markdown("<div class='rd-card rd-result'>", unsafe_allow_html=True)
+        st.subheader("✅ Resultado")
+        st.image(imagen_unida, use_container_width=True)
+
+        nombre_archivo = f"testimonio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+        st.download_button(
+            label="⬇️ Descargar imagen combinada (PNG)",
+            data=_png_bytes(imagen_unida),
+            file_name=nombre_archivo,
+            mime="image/png",
+            use_container_width=True
+        )
+
+        # Texto listo para copiar
+        st.write("### 📋 Texto listo para copiar y pegar")
+        st.text_area("Selecciona y copia el texto:", value=texto, height=220)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # Resumen numérico
+        with st.expander("Resumen numérico"):
+            st.markdown(
+                f"- **Peso inicial:** {_formatea_num(peso_inicial)} kg  \n"
+                f"- **Peso actual:** {_formatea_num(peso_actual)} kg  \n"
+                f"- **Diferencia controlada:** {diferencia_str} kg"
+            )
